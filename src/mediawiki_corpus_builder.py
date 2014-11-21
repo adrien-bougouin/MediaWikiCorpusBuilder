@@ -63,8 +63,8 @@ def mediawiki_html_to_text(html_string):
   """
 
   html = etree.fromstring(html_string)
-  title = html.find("./head/title").text.rsplit("-", 1)[0]
-  content = "\n".join(clean_html(etree.tostring(p).replace("\n", "").strip()) \
+  title = html.find("./head/title").text.replace("\n", "").replace("\r", "").rsplit("-", 1)[0]
+  content = "\n".join(clean_html(etree.tostring(p).replace("\n", "").replace("\r", "").strip()) \
                       for p in html.findall(".//*[@id='mw-content-text']/p"))
   # FIXME
   # use this version to remove wikinews' date (for instance)
@@ -152,6 +152,8 @@ if __name__ == "__main__":
         lines = txt.splitlines()
 
         if len(lines) > 1:
+          if lines[-1] == "":
+            lines = lines[:-1]
           xml_string  = "<mediawikiDoc>\n"
           xml_string += "  <title>%s</title>\n"%(lines[0])
           xml_string += "  <content>\n"
