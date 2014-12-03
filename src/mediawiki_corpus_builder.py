@@ -16,20 +16,32 @@ from os import path
 # formating ####################################################################
 
 def html_entity_to_char(match_object):
-  """
+  """ Replaces HTML special characters (e.g. &amp;) by the appropriate symbol
+  (e.g. '&amp;' -> '&').
+
+  Args:
+    match_object: A C{re.MatchObject} delimiting the character within a given
+      string.
+
+  Returns:
+    The C{string} equivalent of the HTML character.
   """
 
   char_name = match_object.string[match_object.start() + 1:match_object.end() - 1]
   char = ""
 
+  # text code
   if char_name in htmlentitydefs.name2codepoint:
     char = chr(htmlentitydefs.name2codepoint[char_name])
   else:
     try:
+      # hexadecimal code
       if char_name.startswith("x"):
         char = unichr(int(char_name[1:], 16))
+      # decimal code
       if char_name.startswith("#"):
         char = unichr(int(char_name[1:]))
+      # decimal code
       else:
         char = unichr(int(char_name))
     except:
@@ -37,9 +49,16 @@ def html_entity_to_char(match_object):
 
   return char
 
-# TODO explain its a modification from nltk.clean_html
 def clean_html(html_string):
-  """
+  """ Removes HTML tags from an HTML string.
+
+  This function slightly derives from the nltk.clean_html function.
+
+  Args:
+    html_string: The C{string} representation of the HTML content.
+
+  Returns:
+    A C{string} free of any HTML tag.
   """
 
   # remove inline JavaScript/CSS:
@@ -59,7 +78,13 @@ def clean_html(html_string):
   return re.sub(r"[&][^;]+;", html_entity_to_char, cleaned_html.strip())
 
 def mediawiki_html_to_text(html_string):
-  """
+  """ Extracts content information within a mediawiki HTML page.
+
+  Args:
+    html_string: The C{string} HTML of the wikimedia page.
+
+  Returns:
+    A C{tuple} containing the title and the content of the HTML page.
   """
 
   html = etree.fromstring(html_string)
@@ -79,7 +104,13 @@ MEDIAWIKI_RANDOM_PAGE = "Special:Random"
 ENCODING = "utf-8"
 
 def download(url):
-  """
+  """ Downloads a random page from a mediawiki website.
+
+  Args:
+    url: The C{string} url of a mediawiki website (e.g. http://en.wikinews.org).
+
+  Returns:
+    A C{string} representation of the downloaded HTML page.
   """
 
   output = urllib2.urlopen("%s/wiki/%s"%(url, MEDIAWIKI_RANDOM_PAGE))
